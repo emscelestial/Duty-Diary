@@ -12,11 +12,10 @@ aria-hidden="true">
         <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
         <div class="modal-footer">
             <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-            <form action="{{ route{'logout'}}}" method="POST" id="logout-form">
+            <form action="{{ route('logout') }}" method="POST" id="logout-form">
                 @csrf
                 <button type="submit" class="btn btn-danger">Logout</button>
             </form>
-
         </div>
     </div>
 </div>
