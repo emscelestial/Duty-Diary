@@ -48,7 +48,7 @@ class UsersController extends Controller
 
             $user = User::create([
                 'name' => $request->name,
-                'role_id' => $request->role,
+                'role' => $request->role,
                 'email' => $request->email,
                 'password' => Hash::make($request->input('temp-password')),
             ]);
@@ -106,7 +106,7 @@ class UsersController extends Controller
 
             $user->update([
                 'name' => $request->name,
-                'role_id' => $request->role,
+                'role' => $request->role,
                 'email' => $request->email,
             ]);
 

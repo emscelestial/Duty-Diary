@@ -30,15 +30,15 @@
                     <tr>
                       <th scope="row">{{ $index + 1 }}</th>
                       <td>
-                          <a href="{{ route('users.edit',$user->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                          <a href="{{ route('users.edit',$user->id) }}" class="btn btn-sm btn-success">Edit</a>
                           <button onclick="confirmDelete({{ $user->id }})" class="btn btn-sm btn-danger">Delete</button>
                       </td>
                       <td>{{ $user->name }}</td>
                       <td>{{ $user->email }}</td>
                       <td>
-                        @if($user->role_id = 1)
-                          <span class="badge badge-danger">Administrator</span>
-                        @elseif($user->role_id = 2)
+                        @if($user->role == 1)
+                          <span class="badge badge-info">Administrator</span>
+                        @elseif($user->role == 2)
                           <span class="badge badge-warning">Supervisor</span>
                         @else
                           <span class="badge badge-secondary">Trainee</span>
@@ -62,4 +62,70 @@
               @endif
         </div>
     </div>
+
+    <script>
+        function confirmDelete(id){
+            let userId = id;
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            })
+
+            swalWithBootstrapButtons.fire({
+                title: 'Are you sure you delete?',
+                imageUrl: "{{asset("assets/uploads/a.jpg") }}",
+                imageheight:1,
+
+                showCancelButton: true,
+                confirmButtonText: 'Yes Delete!',
+                cancelButtonText: 'Not now!',
+                reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/users/${userId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    Swal.fire({
+                        title: 'Deleted',
+                        text: "Deleted successfully.",
+                        icon: 'success',
+                        showCancelButton: false,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Okay'
+                        }).then((result) => {
+                        if (result.isConfirmed) {
+                            location.reload();
+                        }
+                    })
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle any errors if necessary
+            });
+
+            } else if (
+                /* Read more about handling dismissals below */
+                result.dismiss === Swal.DismissReason.cancel
+            ) {
+                swalWithBootstrapButtons.fire(
+                ' cancel',
+
+                )
+            }
+            })
+        }
+    </script>
 @endsection

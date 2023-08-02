@@ -3,6 +3,7 @@
 @section('content')
     <div class="card">
         <div class="card-header">
+
             New User
         </div>
         <form action="{{route('users.store')}}" method="POST">
@@ -12,6 +13,7 @@
                         <div class="form-group col-md-8">
                             <label for="inputEmail4">Name</label>
                             <input type="text" class="form-control" id="inputEmail4" placeholder="Name" name="name" required value="{{ old('name')}}">
+
                         </div>
                         <div class="form-group col-md-4">
                             <label for="inputEmail4">Role</label>
