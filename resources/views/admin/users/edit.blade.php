@@ -18,7 +18,7 @@
                     <div class="form-group col-md-4">
                         <label for="inputRole">Role</label>
                         <select name="role" id="inputRole" class="form-control">
-                            <option value="" disabled>Select a Role</option>
+                            <option value="" enableds>Select a Role</option>
                             <option value="1" {{ $user->role === 1 ? 'selected' : '' }}>Administrator</option>
                             <option value="2" {{ $user->role === 2 ? 'selected' : '' }}>Supervisor</option>
                             <option value="3" {{ $user->role === 3 ? 'selected' : '' }}>Trainee</option>
@@ -47,6 +47,8 @@
             </div>
         </form>
     </div>
+
+
 
 
 

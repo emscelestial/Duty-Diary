@@ -13,7 +13,7 @@ class Diary extends Model
         'author_id',
         'supervisor_id',
         'plan_today',
-        'end_today',
+        'end_day',
         'plan_tomorrow',
         'roadblocks',
         'summary',

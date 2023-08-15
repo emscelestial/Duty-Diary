@@ -36,4 +36,4 @@
 
     @include('layouts.admin-partials._logout-modal')
 
-   {{-- @include('layouts.admin-partials._footer') --}}
+    @include('layouts.admin-partials._footer')
