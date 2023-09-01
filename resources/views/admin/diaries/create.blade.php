@@ -10,11 +10,15 @@
             <div class="card-body">
                     <div class="form-group">
                         <label for="plan-today">Today's Plan</label>
-                        <textarea class="form-control" id="plan-today" name="plantoday" rows="3">{{ old('plantoday') }}</textarea>
+                        <textarea class="form-control" id="plan_today" name="plan_today" rows="3">{{ old('plan_today') }}</textarea>
                     </div>
                     <div class="form-group">
                         <label for="end-day">End of Day Report</label>
-                        <textarea class="form-control" id="end-day" name="eod" rows="3">{{ old('eod') }}</textarea>
+                        <textarea class="form-control" id="end_day" name="end_day" rows="3">{{ old('end_day') }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="tomorrows-plan">Tomorrow's Plan</label>
+                        <textarea class="form-control" id="plan_tomorrow" name="plan_tomorrow" rows="3">{{ old('plan_tomorrow') }}</textarea>
                     </div>
                     <div class="form-group">
                         <label for="roadblocks">Roadblocks</label>
@@ -24,13 +28,10 @@
                         <label for="summary">Summary of the Day</label>
                         <textarea class="form-control" id="summary" name="summary" rows="3">{{ old('summary') }}</textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="tomorrows-plan">Tomorrow's Plan</label>
-                        <textarea class="form-control" id="tomorrows-plan" name="plantomorrow" rows="3">{{ old('plantomorrow') }}</textarea>
-                    </div>
+
                     <div class="form-group">
                         <label for="supervisor">Supervisor</label>
-                        <select name="supervisor" id="supervisor" class="custom-select">
+                        <select name="supervisor_id" id="supervisor" class="custom-select">
                             @if (isset($supervisors))
                                 <option value="" selected disabled>Select Supervisor</option>
                                 @foreach ($supervisors as $supervisor)
@@ -39,6 +40,7 @@
                             @endif
                         </select>
                     </div>
+
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul class="p-0 m-0">
@@ -55,4 +57,5 @@
             </div>
         </form>
     </div>
+</div>
 @endsection

@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use DataTables;
 use Illuminate\Support\Facades\Hash;
-use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Auth;
 
 
 
@@ -21,6 +22,7 @@ class UsersController extends Controller
         if(request()->ajax())
         {
             $users = User::all();
+
             return $this->generateDatatables($users);
         };
         return view('admin.users.index');
@@ -68,7 +70,7 @@ class UsersController extends Controller
         }
     }
 
-    /**
+       /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -76,8 +78,10 @@ class UsersController extends Controller
      */
     public function show($id)
     {
-        //
+        $profile = User::find($id);
+        return view('admin.profile.index')->with('profile', $profile);
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -139,7 +143,7 @@ class UsersController extends Controller
         $deleteUser = User::findOrFail($id);
         // dd($deleteUser,$deleteUser->name);
         $userName = $deleteUser->name;
-        $deleteUser->destroy($id);
+        $deleteUser->delete($id);
 
         if($deleteUser){
             return response()->json(['message' => $userName .' deleted successfully']);
@@ -167,6 +171,9 @@ class UsersController extends Controller
                     $actionButtons = '<a href="'.route("users.edit",$data->id).'" data-id="'.$data->id.'" class="btn btn-sm btn-warning editUser">
                                         <i class="fas fa-edit"></i>
                                       </a>
+                                      <a href="'.route("users.show",$data->id).'" data-id="'.$data->id.'" class="btn btn-sm btn-dark">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                       <a href="" data-id="'.$data->id.'" class="btn btn-sm btn-danger" onclick="confirmDelete('.$data->id.')">
                                         <i class="fas fa-trash"></i>
                                       </a>';

@@ -3,6 +3,7 @@
 @endpush
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
 
 <script>
@@ -19,7 +20,7 @@
     });
 </script>
 
-<script>
+{{-- <script>
 
 $('#submit-doc').click(function(event) {
     event.preventDefault();
@@ -60,5 +61,40 @@ $('#submit-doc').click(function(event) {
     });
 });
 
+</script> --}}
+<script>
+    $('#submit-doc').click(function (event) {
+        event.preventDefault();
+
+        var form = $('#documentation-upload')[0];
+        var formData = new FormData(form);
+
+        $.ajax({
+            url: form.action,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                Swal.fire({
+                    title: 'Success',
+                    text: 'File successfully uploaded!',
+                    icon: 'success',
+                    showCancelButton: false,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Okay'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error('Request failed with status: ' + status);
+            }
+        });
+    });
 </script>
+
 @endpush
