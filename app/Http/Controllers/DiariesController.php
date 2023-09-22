@@ -1,14 +1,18 @@
 <?php
 
 namespace App\Http\Controllers;
+
+/* use App\Mail\NewDiaryEmail; */
 use Illuminate\Http\Request;
-use DataTables;
+
 use App\Models\Diary;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+/* use Illuminate\Support\Facades\Mail; */
+use Yajra\DataTables\Facades\DataTables;
 
-
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NewDiaryPosted;
 
 class DiariesController extends Controller
 {
@@ -19,14 +23,12 @@ class DiariesController extends Controller
      */
     public function index()
     {
-       /*  $diaries = Diary::all();
-        return view('admin.diaries.index', compact('diaries')); */
         if(request()->ajax())
         {
-            if(Auth::user()->role == 1){
+            if(Auth::user()->role_id == 1){
                 $diaries = Diary::all();
                 return $this->generateDatatables($diaries);
-            } else if(Auth::user()->role == 2){
+            } else if(Auth::user()->role_id == 2){
                 $supervisorId = Auth::user()->id;
 
                 $diaries = Diary::where(function ($query) use ($supervisorId) {
@@ -61,7 +63,6 @@ class DiariesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-
     {
         try {
             $validatedData = $request->validate([
@@ -70,7 +71,7 @@ class DiariesController extends Controller
                 'plan_tomorrow' => 'required',
                 'roadblocks' => 'required',
                 'summary' => 'required',
-                'supervisor_id' => 'required',
+                'supervisor_id' => 'required'
             ]);
 
             $diary = Diary::create([
@@ -83,12 +84,13 @@ class DiariesController extends Controller
                 'supervisor_id' => $request->supervisor_id,
                 'status' => 0
             ]);
+
             /* if($diary){
                 $trainee = User::where('id','=',$diary->author_id)->first();
                 $supervisor = User::where('id','=',$diary->supervisor_id)->first();
                 $diary = [
                     'trainee' => $trainee->name,
-                    'supervisor' => $supervisor->name,
+                    'supervisor_id' => $supervisor->name,
                     'sup_email' => $supervisor->email,
                     'url' => route('approval-requests.show',$diary->id),
                 ];
@@ -115,47 +117,33 @@ class DiariesController extends Controller
      */
     public function show($id)
 {
-    $diary = Diary::where('id', '=', $id)->first();
+    $diary = Diary::where('id', $id)->first();
+    $user = User::where('id', $diary->author_id)->first();
+    $name = $user->name;
+    $sup = User::where('id', $diary->supervisor_id)->first();
+    $supervisor = $sup->name;
 
-    if (!$diary) {
-        // Handle the case when the diary is not found
-        abort(404); // Return a 404 error or handle it according to your needs
-    }
-
-    $user = User::where('id', '=', $diary->author_id)->first();
-
-    if ($user) {
-        $date = $user->created_at ? $user->created_at->format('M d, Y') : '';
-        $name = $user->name;
+    // Check if the created_at property is not null before formatting
+    if (!is_null($user->created_at)) {
+        $date = $user->created_at->format('M d, Y');
     } else {
-        $date = '';
-        $name = 'Unknown Author'; // Default value
-    }
-
-    $supervisor = User::where('id', '=', $diary->supervisor_id)->first();
-
-    if ($supervisor) {
-        $supervisorName = $supervisor->name;
-        $signature = $supervisor->signature;
-    } else {
-        $supervisorName = 'Unknown Supervisor'; // Default value
-        $signature = ''; // Default value
+        $date = 'N/A'; // Handle the case where created_at is null
     }
 
     $title = 'EOD Report by ' . $name . ' on ' . $date;
-
     $diary_details = [
         'diary' => $diary,
         'name' => $name,
         'title' => $title,
-        'supervisor' => $supervisorName,
-        'signature' => $supervisor ? $supervisor->signature : '',
+        'supervisor' => $supervisor,
+        'signature' => $sup->signature
     ];
 
-    return view('admin.diaries.show')->with('diary_details', $diary_details);
+    return view('admin.diaries.show')->with('diary', $diary_details);
 }
 
-/**
+
+    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -163,7 +151,6 @@ class DiariesController extends Controller
      */
     public function print($id)
     {
-
         $diary = Diary::where('id','=',$id)->first();
         $user = User::where('id','=',$diary->author_id)->first();
         $date = $user->created_at->format('M d, Y');
@@ -175,13 +162,11 @@ class DiariesController extends Controller
             'diary' => $diary,
             'name' => $name,
             'title' => $title,
-            'supervisor' => $supervisor,
+            'supervisor_id' => $supervisor,
             'signature' => $sup->signature
         ];
         return view('admin.diaries.print')->with('diary',$diary_details);
     }
-
-
 
     /**
      * Show the form for editing the specified resource.
@@ -196,7 +181,7 @@ class DiariesController extends Controller
 
         return view('admin.diaries.edit')->with([
             'diary' => $diary,
-            'supervisors' => $supervisors,
+            'supervisors_id' => $supervisors,
         ]);
     }
 
@@ -216,25 +201,29 @@ class DiariesController extends Controller
                 'plan_tomorrow' => 'required',
                 'roadblocks' => 'required',
                 'summary' => 'required',
-                'supervisor_id' => 'required',
+                'supervisor_id' => 'required'
             ]);
 
             $diary = Diary::findOrFail($id);
 
             $diary->update([
-                'plan_today' => $request->plan_today,
+                'plan_today' => $request->plantoday,
                 'end_day' => $request->end_day,
                 'plan_tomorrow' => $request->plan_tomorrow,
                 'roadblocks' => $request->roadblocks,
                 'summary' => $request->summary,
                 'author_id' => Auth::user()->id,
                 'supervisor_id' => $request->supervisor_id,
-                /* 'status' => 0 */
             ]);
 
             $diaries = Diary::all();
             $message = 'EOD Report has been updated!';
-            return redirect()->route('diaries.index')->with('success', $message);
+
+            return view('admin.diaries.index')->with([
+                'diaries'=>$diaries,
+                'success' => $message
+            ]);
+            // return redirect()->route('success')->with('success', 'Data saved successfully!');
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         }
@@ -250,7 +239,7 @@ class DiariesController extends Controller
     {
         $deleteDiary = Diary::findOrFail($id);
 
-        $deleteDiary->delete($id);
+        $deleteDiary->destroy($id);
 
         if($deleteDiary){
             return response()->json(['message' => 'Diary deleted successfully']);
@@ -266,7 +255,11 @@ class DiariesController extends Controller
                 ->addColumn('title', function($data){
                     $date = $data->created_at->format('F j, Y');
                     $author = User::where('id','=',$data->author_id)->first();
-                    return $title = 'EOD Report for '.$date.' by '.$author->name;
+                    if(Auth::user()->role == 1 || Auth::user()->role == 2){
+                        return $title = 'EOD Report for '.$date.' by '.$author->name;
+                    } else {
+                        return $title = 'EOD Report for '.$date;
+                    }
                 })
                 ->addColumn('status', function($data){
                     $status = '';
@@ -278,16 +271,16 @@ class DiariesController extends Controller
                     return $status;
                 })
                 ->addColumn('action', function($data){
-                    $actionButtons = '<a href="'.route("diaries.show",$data->id).'" data-id="'.$data->id.'" class="btn btn-sm btn-dark">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="'.route("diaries.edit",$data->id).'" data-id="'.$data->id.'" class="btn btn-sm btn-warning editDiary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button data-id="'.$data->id.'" class="btn btn-sm btn-danger" onclick="confirmDeleteDiary('.$data->id.')">
-                                        <i class="fas fa-trash"></i>
-                                        </button>';
-            return $actionButtons;
+                    $actionButtons = '<a href="'.route("diaries.show",$data->id).'" data-id="'.$data->id.'" class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="'.route("diaries.edit",$data->id).'" data-id="'.$data->id.'" class="btn btn-sm btn-warning editDiary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button data-id="'.$data->id.'" class="btn btn-sm btn-danger" onclick="confirmDeleteDiary('.$data->id.')">
+                                    <i class="fas fa-trash"></i>
+                                    </button>';
+                    return $actionButtons;
                 })
                 ->rawColumns(['action','status','title','author'])
                 ->make(true);

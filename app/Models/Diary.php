@@ -9,6 +9,18 @@ class Diary extends Model
 {
     use HasFactory;
 
+    protected $table = "diaries";
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function supervisor()
+    {
+        return $this->belongsTo(User::class, 'supervisor_id');
+    }
+
     protected $fillable = [
         'author_id',
         'supervisor_id',
@@ -17,7 +29,7 @@ class Diary extends Model
         'plan_tomorrow',
         'roadblocks',
         'summary',
-        'status'
-    ];
+        'status',
 
+    ];
 }

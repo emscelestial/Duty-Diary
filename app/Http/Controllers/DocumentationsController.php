@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Documentation;
+use Illuminate\Support\Facades\Storage;
 
 class DocumentationsController extends Controller
 {
@@ -16,9 +16,8 @@ class DocumentationsController extends Controller
      */
     public function index()
     {
-/*         return view('admin.documentations.index'); */
-                $docs = Documentation::latest()->get();
-            return view('admin.documentations.index')->with('docs',$docs);
+        $docs = Documentation::latest()->get();
+        return view('admin.documentations.index')->with('docs', $docs);
     }
 
     /**
@@ -28,7 +27,7 @@ class DocumentationsController extends Controller
      */
     public function create()
     {
-        return view('admin.users.create');
+        //
     }
 
     /**
@@ -40,14 +39,9 @@ class DocumentationsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'doc_img' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Example image validation rules
+            'doc_img' => 'required|image|mimes:jpeg,png,jpg,gif,avif,webp|max:5048', // Example image validation rules
             'caption' => 'required|string',
         ]);
-
-        $userId = null;
-    if (Auth::check()) {
-        $userId = Auth::id();
-    }
 
         if ($request->hasFile('doc_img')) {
             $imageFile = $request->file('doc_img');
@@ -55,16 +49,19 @@ class DocumentationsController extends Controller
             $fileName = $originalName . "." . time() . '.' . $imageFile->getClientOriginalExtension();
             $path = $imageFile->storeAs('public/upload/images', $fileName);
 
-
-
-        // Save the image details to the database //
-        Documentation::create([
+            if (Auth::check()){
+                $userId = Auth::id();
+            }
+            // Save the image details to the database //
+           Documentation::create([
             'image' => $fileName,
             'caption' => $request->input('caption'),
             'author_id' => $userId,
-        ]);
+           ]);
 
-        return view('admin.documentations.index')->with('uploadSuccess','The image '.$fileName.' successfully uploaded!');
+        //    return view('admin.documentations.index')->with('success', 'You Uploaded a Picture Successfully!');
+           return view('admin.documentations.index')->with('uploadSuccess','The image '.$fileName.' successfully uploaded!');
+        //    return redirect()->route('admin.documentations.index')->with('success', 'Document uploaded successfully!');
         }
     }
 

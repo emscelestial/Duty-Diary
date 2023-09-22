@@ -51,4 +51,4 @@
     @stack('styles') <!-- Additional styles -->
 </head>
 
-<body id="page-top">
+{{-- <body id="page-top"> --}}

@@ -20,17 +20,16 @@
             <table class="table table-sm table-hover" id="diaries-table">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Title</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Action</th> <!-- Moved "Action" to the last column -->
+                    <th scope="col">#</th>
+                    <th scope="col">Action</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Status</th>
                     </tr>
                 </thead>
                 <tbody>
                 </tbody>
-            </table>
+                </table>
         </div>
     </div>
-
     @include('admin.diaries.partials._datatables-scripts')
 @endsection

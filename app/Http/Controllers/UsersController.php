@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewUserEmail;
 use Illuminate\Http\Request;
 use App\Models\User;
-use DataTables;
 use Illuminate\Support\Facades\Hash;
+use DataTables;
 use Illuminate\Support\Facades\Auth;
-
-
+use Illuminate\Support\Facades\Mail;
 
 class UsersController extends Controller
 {
@@ -21,8 +21,7 @@ class UsersController extends Controller
     {
         if(request()->ajax())
         {
-            $users = User::all();
-
+            $users = User::where('id','!=',Auth::user()->id)->get();
             return $this->generateDatatables($users);
         };
         return view('admin.users.index');
@@ -59,18 +58,30 @@ class UsersController extends Controller
                 'role' => $request->role,
                 'email' => $request->email,
                 'password' => Hash::make($request->input('temp-password')),
+                'isPicComplete' => 0,
+                'isSignatureComplete' => 0,
+
             ]);
+            // if($user){
+            //     $invite = [
+            //         'user' => $user,
+            //         'url' => route('login'),
+            //         'pass' => $request->inputd('temp-password'),
+            //         'invitedBy' => Auth::user()->name
+            //     ];
+
+            //     Mail::to($request->mail)->send(new NewUserEmail($invite));
+            // }
 
             $users = User::all();
+            $message = "User Created Successfully!";
 
-            return view('admin.users.index')->with('users',$users);
-            // return redirect()->route('success')->with('success', 'Data saved successfully!');
+            return view('admin.users.index')->with(['users'=>$users, 'success'=>$message]);
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         }
     }
-
-       /**
+    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -79,9 +90,9 @@ class UsersController extends Controller
     public function show($id)
     {
         $profile = User::find($id);
+
         return view('admin.profile.index')->with('profile', $profile);
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -118,15 +129,13 @@ class UsersController extends Controller
                 'name' => $request->name,
                 'role' => $request->role,
                 'email' => $request->email,
+                'isComplete' => 1
             ]);
 
             $users = User::all();
+            $message = "User '$user->name' Updated Successfully!";
 
-            return view('admin.users.index')->with([
-                'users'=>$users,
-                'user_name'=>$user->name
-            ]);
-            // return redirect()->route('success')->with('success', 'Data saved successfully!');
+            return view('admin.users.index')->with(['users'=>$users,'user_name'=>$user->name, 'success'=>$message]);
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         }
@@ -141,9 +150,8 @@ class UsersController extends Controller
     public function destroy($id)
     {
         $deleteUser = User::findOrFail($id);
-        // dd($deleteUser,$deleteUser->name);
         $userName = $deleteUser->name;
-        $deleteUser->delete($id);
+        $deleteUser->destroy($id);
 
         if($deleteUser){
             return response()->json(['message' => $userName .' deleted successfully']);
@@ -159,7 +167,7 @@ class UsersController extends Controller
                 ->addColumn('role', function($data){
                     $role = '';
                     if($data->role == 1){
-                        $role = '<span class="badge badge-primary">Administrator</span>';
+                        $role = '<span class="badge badge-success">Administrator</span>';
                     } else if($data->role == 2){
                         $role = '<span class="badge badge-warning">Supervisor</span>';
                     } else {
@@ -171,15 +179,169 @@ class UsersController extends Controller
                     $actionButtons = '<a href="'.route("users.edit",$data->id).'" data-id="'.$data->id.'" class="btn btn-sm btn-warning editUser">
                                         <i class="fas fa-edit"></i>
                                       </a>
-                                      <a href="'.route("users.show",$data->id).'" data-id="'.$data->id.'" class="btn btn-sm btn-dark">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                      <a href="" data-id="'.$data->id.'" class="btn btn-sm btn-danger" onclick="confirmDelete('.$data->id.')">
+                                      <button data-id="'.$data->id.'" class="btn btn-sm btn-danger" onclick="confirmDelete('.$data->id.')">
                                         <i class="fas fa-trash"></i>
-                                      </a>';
+                                      </button>';
                     return $actionButtons;
                 })
                 ->rawColumns(['action','role'])
                 ->make(true);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateProfilePic(Request $request, $id)
+    {
+        if(request()->ajax()){
+            try {
+                $request->validate([
+                    'profilePic' => 'required|image|mimes:jpeg,png,jpg,gif|max:10048', // Validate the image file
+                ]);
+
+                if ($request->hasFile('profilePic')) {
+                    $imageFile = $request->file('profilePic');
+                    $originalName = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    // originalName-time.extension
+                    $filename = $originalName . "-" . time() . '.' . $imageFile->getClientOriginalExtension();
+
+                    $path = 'uploads/profiles/'.$filename;
+                    $user = User::findOrFail($id);
+                    // dd($path);
+                    $user->update([
+                        'img' => $path,
+                        'isPicComplete' => 1
+                    ]);
+
+                    if($user){
+                        $imageFile->storeAs('public/uploads/profiles/', $filename);
+
+                        $successMessage = $user->name .'\'s profile picture successfully uploaded!';
+
+                        return response()->json(['successMessage' => $successMessage]);
+                    }
+                }
+                // return redirect()->route('success')->with('success', 'Data saved successfully!');
+            } catch (ValidationException $e) {
+                return redirect()->back()->withErrors($e->errors())->withInput();
+            }
+        }
+    }
+
+       /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateSignature(Request $request, $id)
+    {
+        if(request()->ajax()){
+            try {
+                $request->validate([
+                    'signature' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the image file
+                ]);
+
+                if ($request->hasFile('signature')) {
+                    $imageFile = $request->file('signature');
+                    $originalName = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    // originalName-time.extension
+                    $filename = $originalName . "-" . time() . '.' . $imageFile->getClientOriginalExtension();
+
+                    $path = 'uploads/signatures/'.$filename;
+                    $user = User::findOrFail($id);
+                    // dd($path);
+                    $user->update([
+                        'signature' => $path,
+                        'isSignatureComplete' => 1
+                    ]);
+
+                    if($user){
+                        $imageFile->storeAs('public/uploads/signatures/', $filename);
+
+                        $successMessage = $user->name.'\'s signature successfully uploaded!';
+
+                        return response()->json(['successMessage' => $successMessage]);
+                    }
+                }
+                // return redirect()->route('success')->with('success', 'Data saved successfully!');
+            } catch (ValidationException $e) {
+                return redirect()->back()->withErrors($e->errors())->withInput();
+            }
+        }
+    }
+
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateProfileName(Request $request, $id)
+    {
+        if(request()->ajax()){
+            try {
+                $request->validate([
+                    'name' => 'required|string|max:255', // Validate the image file
+                ]);
+
+                $user = User::findOrFail($id);
+
+                $user->update([
+                    'name' => $request->name,
+                ]);
+
+                if($user){
+                    $successMessage = 'Profile name is now '.$user->name;
+
+                    return response()->json(['successMessage' => $successMessage]);
+                }
+
+                // return redirect()->route('success')->with('success', 'Data saved successfully!');
+            } catch (ValidationException $e) {
+                return redirect()->back()->withErrors($e->errors())->withInput();
+            }
+        }
+    }
+
+      /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updatePassword(Request $request, $id)
+    {
+            try {
+                $request->validate([
+                    'password' => 'required|string|max:255',
+                ]);
+
+                $user = User::findOrFail($id);
+
+                $user->update([
+                    'password' => Hash::make($request->password),
+                    'isPassChanged' => 1
+                ]);
+
+                if($user){
+                    $successMessage = 'Your password is now updated '.$user->name.'!';
+
+                    return response()->json(['successMessage' => $successMessage]);
+                }
+
+                // return redirect()->route('success')->with('success', 'Data saved successfully!');
+            } catch (ValidationException $e) {
+                return redirect()->back()->withErrors($e->errors())->withInput();
+            }
+
     }
 }

@@ -12,6 +12,7 @@ class Documentation extends Model
     protected $fillable = [
         'author_id',
         'image',
-        'caption'
+        'caption',
+        'approved'
     ];
 }

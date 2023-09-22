@@ -26,4 +26,4 @@
 
 </head>
 
-<body class="bg-gradient-primary">
+

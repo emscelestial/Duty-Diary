@@ -1,4 +1,4 @@
-{{-- <script>
+<script>
     function approveDiary(diary){
         event.preventDefault();
         const id = diary;
@@ -36,10 +36,10 @@
                         }).then((result) => {
                             if (result.isConfirmed) {
 
-                                var currentRoute = "{{ Route::currentRouteName() }}";
+                                let currentRoute = "{{ Route::currentRouteName() }}";
 
                                 if (currentRoute === "{{ route('approval-requests.index') }}") {
-                                    $('#approval-requests-table').DataTable().ajax.reload();
+                                    $('#approval-requests-DataTable').DataTable().ajax.reload();
                                 } else {
                                     window.location.href = "{{ route('approval-requests.index') }}";
                                 }
@@ -57,6 +57,8 @@
             }
         })
     }
+
+
 
     function rejectDiary(diary){
         event.preventDefault();
@@ -92,7 +94,7 @@
                             confirmButtonText: 'Okay'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                $('#approval-requests-table').DataTable().ajax.reload();
+                                $('#approval-requests-DataTable').DataTable().ajax.reload();
                             }
                         })
                     },
@@ -106,101 +108,5 @@
                 });
             }
         })
-    }
-</script>
- --}}
- <script>
-    function approveDiary(diaryId) {
-        event.preventDefault();
-        const url = "{{ route('approval-requests.approve', '') }}/" + diaryId;
-
-        Swal.fire({
-            title: 'Are you sure you want to approve this diary?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, approve it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: url,
-                    type: 'PUT',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
-                    },
-                    success: function(response) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: response.successMessage,
-                            icon: 'success',
-                            showCancelButton: false,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Okay'
-                        }).then(() => {
-                            // Reload the DataTable
-                            $('#approval-requests-table').DataTable().ajax.reload();
-                        });
-                    },
-                    error: function(error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops!',
-                            text: 'Sorry, we encountered an error: ' + error.responseText,
-                        });
-                    }
-                });
-            }
-        });
-    }
-
-    function rejectDiary(diaryId) {
-        event.preventDefault();
-        const url = "{{ route('approval-requests.reject', '') }}/" + diaryId;
-
-        Swal.fire({
-            title: 'Are you sure you want to reject this diary?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, reject it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: url,
-                    type: 'PUT',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
-                    },
-                    success: function(response) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: response.rejectMessage,
-                            icon: 'success',
-                            showCancelButton: false,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Okay'
-                        }).then(() => {
-                            // Reload the DataTable
-                            $('#approval-requests-table').DataTable().ajax.reload();
-                        });
-                    },
-                    error: function(error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops!',
-                            text: 'Sorry, we encountered an error: ' + error.responseText,
-                        });
-                    }
-                });
-            }
-        });
     }
 </script>

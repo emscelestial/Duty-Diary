@@ -7,7 +7,7 @@
                 <div class="col-md-8 col-12">
                     <h4 class="m-0">
                         <i class="fas fa-solid fa-book-open"></i>
-                        {{ $diary_details['title']}}
+                        {{ $diary['title']}}
                     </h4>
                 </div>
 
@@ -16,8 +16,8 @@
                         <i class="fas fa-solid fa-chevron-left"></i>
                         Back
                     </a>
-                    @if ($diary_details['diary']->status == 1)
-                        <a href="{{ route('diaries.print', $diary_details['diary']->id) }}" class="btn btn-sm btn-warning" target="_blank">
+                    @if ($diary['diary']->status == 1)
+                        <a href="{{ route('diaries.print', $diary['diary']->id) }}" class="btn btn-sm btn-warning" target="_blank">
                             <i class="fas fa-solid fa-print"></i>
                         </a>
                     @endif
@@ -29,7 +29,7 @@
                 <h3 class="text-uppercase bg-primary p-2 text-light">Practicum Duty Diary</h3>
                 <div class="row pl-2">
                     <div class="col-3">Name of Trainee: </div>
-                    <div class="col-9 font-weight-bold">{{ $diary_details['name'] }}</div>
+                    <div class="col-9 font-weight-bold">{{ $diary['name'] }}</div>
                 </div>
                 <div class="row pl-2">
                     <div class="col-3">Company Name: </div>
@@ -37,29 +37,29 @@
                 </div>
                 <div class="row pl-2">
                     <div class="col-3">Diary Date: </div>
-                    <div class="col-9 font-weight-bold">{{ $diary_details['diary']->created_at->format('m/d/y') }}</div>
+                    <div class="col-9 font-weight-bold">{{ $diary['diary']->created_at->format('m/d/y') }}</div>
                 </div>
             </div>
             <h5 class="text-uppercase">Plan Today</h5>
-            {!! $diary_details['diary']->plan_today !!}
+            {!! $diary['diary']->plan_today !!}
             <hr>
             <h5 class="text-uppercase">End-of-Day Report</h5>
-            {!! $diary_details['diary']->end_day !!}
+            {!! $diary['diary']->end_day !!}
             <hr>
             <h5 class="text-uppercase">Plan Tomorrow</h5>
-            {!! $diary_details['diary']->plan_tomorrow !!}
+            {!! $diary['diary']->plan_tomorrow !!}
             <hr>
             <h5 class="text-uppercase">Roadblocks</h5>
-            {!! $diary_details['diary']->roadblocks !!}
+            {!! $diary['diary']->roadblocks !!}
             <hr>
 
             <h5 class="text-uppercase">Summary</h5>
-            {!! $diary_details['diary']->summary !!}
+            {!! $diary['diary']->summary !!}
             <hr>
 
             <p class="mt-5">Checked by:</p>
-            <img src="{{ asset('storage/'.$diary_details['signature']) }}" alt="Supervisor's Signature" width="15%" class="position-relative top-1 mt-5">
-            <h5 class="text-uppercase mb-0">{{$diary_details['supervisor'] }}</h5>
+            <img src="{{ asset('storage/'.$diary['signature']) }}" alt="Supervisor's Signature" width="15%" class="position-relative top-1 mt-5">
+            <h5 class="text-uppercase mb-0">{{$diary['supervisor'] }}</h5>
             <p class="m-0">HTE Supervising Officer</p>
             <p class="m-0">Date: {{ now()->format('m/d/y') }}</p>
         </div>
