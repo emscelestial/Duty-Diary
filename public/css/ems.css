@@ -1,0 +1,87 @@
+#wrapper .sidebar {
+    width: 20% !important;
+}
+#wrapper main {
+    width: 80% !important;
+    position: static;
+    background: #f8f9fc;
+}
+.sticky-footer {
+    position: absolute;
+    bottom: 0;
+    width: 80%;
+}
+#wrapper #content-wrapper {
+    height: 100vh;
+}
+
+.sidebar-divider {
+    border: 2px solid floralwhite;
+    margin: 2px 0;
+}
+
+.scroll-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: none;
+}
+
+/* this is animation for the card */
+.animated-card {
+    display: flex;
+    align-items: center;
+}
+
+.animated-icon {
+    font-size: 2rem;
+    margin-right: 10px;
+    opacity: 0; /* Initial opacity is set to 0 */
+}
+
+.animated-text {
+    opacity: 0; /* Initial opacity is set to 0 */
+}
+
+/* Keyframes for animation */
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Custom CSS from Sidebar Hover */
+/* Define the initial state of the navigation items */
+.nav-item {
+    transition: background-color 0.3s ease;
+}
+
+/* Define the hover state */
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Define the active state */
+.nav-item.active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Button Hover Animation */
+/* Define the initial state of the button */
+.btn {
+    padding: 5px 10px;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.6s ease, transform 0.6s ease;
+}
+
+/* Define the hover state */
+.btn:hover {
+    transform: scale(1.1);
+}

@@ -6,7 +6,7 @@
         <div class="card-header" data-aos="zoom-in-left" data-aos-delay="100" data-aos-duration="500" data-aos-anchor-placement="bottom-bottom">
             <div class="row">
                 <div class="col-md-6 col-12">
-                    <h5 class="m-0 font-weight-bold"><i class="fas fa-solid fa-images"></i> <b>Documentation</b> </h5>
+                    <h5 class="m-0 font-weight-bold"><i class="fas fa-solid fa-images"></i> <b>Documentaries</b> </h5>
                 </div>
                 <div class="col-md-6 col-12 text-right">
                     <a href="" class="btn btn-sm btn-primary" data-bs-toggle="modal"  data-bs-target="#newDocumentation">
@@ -21,7 +21,7 @@
                 @if(isset($docs) && $docs->count() > 0)
                         @foreach ($docs as $doc)
                 <div class="col-md-3 col-sm-4 col-12 shadow-sm position-static mt-3" data-aos="zoom-in-right" data-aos-delay="200" data-aos-duration="1000" data-aos-anchor-placement="bottom-bottom">
-                    <a href="{{ asset('assets/uploads/images/'.$doc->image) }}" data-lightbox="lightbox-img" data-title="{{ $doc->caption }}" data-alt="{{ $doc->caption }}">
+                    <a href="{{ asset('storage/upload/images/'.$doc->image) }}" data-lightbox="lightbox-img" data-title="{{ $doc->caption }}" data-alt="{{ $doc->caption }}">
                         <img src="{{ asset('storage/upload/images/'.$doc->image) }}" alt="{{ $doc->caption }}" class="img-fluid">
                     </a>
                 </div>

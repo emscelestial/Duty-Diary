@@ -10,9 +10,9 @@ class Documentation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'author_id',
         'image',
         'caption',
-        'approved'
+        'author_id'
+        /* 'approved' */
     ];
 }

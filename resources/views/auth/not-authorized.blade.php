@@ -3,9 +3,9 @@
 @section('content')
 <div class="row mt-2">
     <div class="col-12 col-md-8 offset-2">
-        <div class="alert alert-danger text-center">
-            <strong>Restricted route:</strong>
-            Uh, uh, uh! Di ka pwede!
+        <div class="alert alert-danger text-center border-3">
+            <strong>Restricted Route:</strong>
+            Danger!
         </div>
     </div>
     <div class="col-12 col-md-4 offset-4 mb-3">
@@ -16,7 +16,7 @@
         @endauth
     </div>
     <div class="col-12 col-md-4 offset-4">
-        <img src="{{ asset('/assets/images/not-authorized-animated.gif') }}" alt="Not Authorized" class="img-fluid">
+        <img src="{{ asset('/images/d.gif') }}" alt="Not Authorized" class="img-fluid">
     </div>
 </div>
 @endsection
